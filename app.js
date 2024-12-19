@@ -16,6 +16,10 @@ app.get('/path2', (req, res) => {
   res.send('This is path 2');
 });
 
+app.get('/path3', (req, res) => {
+  res.send('New path is working');
+});
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
