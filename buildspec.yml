@@ -1,33 +1,25 @@
 version: 0.2
-run-as: root
 
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR.......
+      - echo Logging in to Amazon ECR...
+      - aws --version
       - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 654654198598.dkr.ecr.eu-west-2.amazonaws.com
-      - # Replace with this to your repository URI
       - REPOSITORY_URI=654654198598.dkr.ecr.eu-west-2.amazonaws.com/node-demo-ecr
-      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_NUMBER)
   build:
     commands:
       - echo Build started on `date`
-      - echo Docker image is building... 
-      - npm --version
-      - npm install express
-      - npm install prom-client
-      - docker build -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG    
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on `date`
-      - echo Pushing Docker image to AWS ECR .....
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG 
-      - echo ECS Configuration....
+      - echo Pushing the Docker images to ECR...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - CONTAINER_NAME=node-demo-ecr
       - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-      - cat imagedefinitions.json   
+
 artifacts:
     files: imagedefinitions.json
