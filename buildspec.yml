@@ -7,12 +7,13 @@ phases:
       - aws --version
       - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 654654198598.dkr.ecr.eu-west-2.amazonaws.com
       - REPOSITORY_URI=654654198598.dkr.ecr.eu-west-2.amazonaws.com/node-demo-ecr
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_NUMBER)
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on `date`
